@@ -15,23 +15,25 @@ let titles = [
 ];
 
 export default function Email() {
+  // [...Array(9).keys()] tạo ra array từ 0 đến 8
   const [messages, setMessages] = useState([...Array(9).keys()]);
   const [selectedMessages, setSelectedMessages] = useState([]);
 
-  function addMessage() {
-    let newId = (messages.at(-1) || 0) + 1;
-    setMessages((messages) => [...messages, newId]);
-  }
-
-  function toggleMessage(mid) {
-    if (selectedMessages.includes(mid)) {
-      setSelectedMessages((messages) => messages.filter((id) => id !== mid));
+  function toggleMessage(messageId) {
+    if (selectedMessages.includes(messageId)) {
+      setSelectedMessages((messages) => messages.filter((id) => id !== messageId));
     } else {
-      setSelectedMessages((messages) => [...messages, mid]);
+      setSelectedMessages((messages) => [messageId, ...messages]);
     }
   }
 
-  function archiveSelectedMessages() {
+  function addMessage() {
+    // lấy item cuối cùng của messages hoặc là 0 (nếu messages rỗng) rồi cộng 1
+    const newId = (messages.at(-1) || 0) + 1;
+    setMessages((messages) => [...messages, newId]);
+  }
+
+  function archiveMessages() {
     setMessages((messages) =>
       messages.filter((id) => !selectedMessages.includes(id))
     );
@@ -51,7 +53,7 @@ export default function Email() {
                 <Icons.MailIcon className="h-5 w-5 " />
               </button>
               <button
-                onClick={archiveSelectedMessages}
+                onClick={archiveMessages}
                 className="-mx-2 rounded px-2 py-1 text-slate-400 hover:text-slate-500 active:bg-slate-200"
               >
                 <Icons.ArchiveIcon className="h-5 w-5" />
@@ -59,47 +61,50 @@ export default function Email() {
             </div>
           </div>
           <ul className="overflow-y-scroll px-3 pt-2">
+            {/* [...messages].reverse() vì reverse không trả ra mảng mới mà thay đổi trực tiếp trong mảng cũ nên phải tạo ra arr mới */}
             <AnimatePresence initial={false}>
-              {[...messages].reverse().map((mid) => (
-                <motion.li
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ opacity: { duration: 0.2 } }}
-                  key={mid}
-                  className="relative"
-                >
-                  <div className="py-0.5">
-                    <button
-                      onClick={() => toggleMessage(mid)}
-                      className={`${
-                        selectedMessages.includes(mid)
-                          ? "bg-blue-500"
-                          : "hover:bg-slate-200"
-                      } block w-full cursor-pointer truncate rounded py-3 px-3 text-left `}
-                    >
-                      <p
+              {[...messages].reverse().map((messageId) => {
+                return (
+                  <motion.li
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ opacity: { duration: 0.2 } }}
+                    key={messageId}
+                    className="relative"
+                  >
+                    <div className="py-0.5">
+                      <button
+                        onClick={() => toggleMessage(messageId)}
                         className={`${
-                          selectedMessages.includes(mid)
-                            ? "text-white"
-                            : "text-slate-500"
-                        } truncate text-sm font-medium`}
+                          selectedMessages.includes(messageId)
+                            ? "bg-blue-500"
+                            : "hover:bg-slate-200"
+                        } block w-full cursor-pointer truncate rounded py-3 px-3 text-left`}
                       >
-                        {titles[mid % titles.length][0]}
-                      </p>
-                      <p
-                        className={`${
-                          selectedMessages.includes(mid)
-                            ? "text-blue-200"
-                            : "text-slate-400"
-                        } truncate text-xs`}
-                      >
-                        {titles[mid % titles.length][1]}
-                      </p>
-                    </button>
-                  </div>
-                </motion.li>
-              ))}
+                        <p
+                          className={`${
+                            selectedMessages.includes(messageId)
+                              ? "text-white"
+                              : "text-slate-500"
+                          } truncate text-sm font-medium`}
+                        >
+                          {titles[messageId % titles.length][0]}
+                        </p>
+                        <p
+                          className={`${
+                            selectedMessages.includes(messageId)
+                              ? "text-blue-200"
+                              : "text-slate-400"
+                          } truncate text-xs`}
+                        >
+                          {titles[messageId % titles.length][1]}
+                        </p>
+                      </button>
+                    </div>
+                  </motion.li>
+                );
+              })}
             </AnimatePresence>
           </ul>
         </div>
