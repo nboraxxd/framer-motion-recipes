@@ -16,7 +16,7 @@ const titles = [
 export default function Email() {
   // [...Array(9).keys()] tạo ra array từ 0 đến 8
   const [messages, setMessages] = useState([...Array(9).keys()])
-  const [selectedMessages, setselectedMessages] = useState([])
+  const [selectedMessages, setSelectedMessages] = useState([])
 
   function addMessage() {
     // lấy item cuối cùng của messages hoặc là 0 (nếu messages rỗng) rồi cộng 1
@@ -24,12 +24,17 @@ export default function Email() {
     setMessages((messages) => [...messages, newId])
   }
 
-  function archiveMessage(messageId) {
-    setMessages((messages) => messages.filter((id) => id !== messageId))
+  function archiveSelectedMessages() {
+    setMessages((messages) => messages.filter((id) => !selectedMessages.includes(id)))
+    setSelectedMessages([])
   }
 
-  function selectMessage(messageId) {
-    setselectedMessages((messages) => [...messages, messageId])
+  function toggleMessage(messageId) {
+    if (selectedMessages.includes(messageId)) {
+      setSelectedMessages((messages) => messages.filter((id) => id !== messageId))
+    } else {
+      setSelectedMessages((messages) => [...messages, messageId])
+    }
   }
 
   return (
@@ -45,10 +50,10 @@ export default function Email() {
                 <Icons.MailIcon className="h-5 w-5 " />
               </button>
               <button
-                onClick={archiveMessage}
+                onClick={archiveSelectedMessages}
                 className="-mx-2 rounded px-2 py-1 text-slate-400 hover:text-slate-500 active:bg-slate-200"
               >
-                <Icons.ArchiveIcon className="h-5 w-5 " />
+                <Icons.ArchiveIcon className="h-5 w-5" />
               </button>
             </div>
           </div>
@@ -66,7 +71,7 @@ export default function Email() {
                 >
                   <div className="py-0.5">
                     <button
-                      onClick={() => selectMessage(messageId)}
+                      onClick={() => toggleMessage(messageId)}
                       className={clsx(
                         'block w-full cursor-pointer truncate rounded py-3 px-3 text-left transition-all',
                         { 'bg-blue-500': selectedMessages.includes(messageId) },
